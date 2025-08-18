@@ -73,6 +73,19 @@ defmodule Forum.Posts do
     |> Repo.update()
   end
 
+  def replace_post(%Post{} = post, attrs) do
+    defaults = %{
+      "title" => "this was deleted by an update",
+      "body" => "this was deleted by an update"
+    }
+
+    full_attrs = Map.merge(defaults, attrs)
+
+    post
+    |> Post.changeset(full_attrs)
+    |> Repo.update()
+  end
+
   @doc """
   Deletes a post.
 

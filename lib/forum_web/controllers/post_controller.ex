@@ -12,7 +12,10 @@ defmodule ForumWeb.PostController do
   end
 
   def create(conn, %{"post" => post_params}) do
-    with {:ok, %Post{} = post} <- Posts.create_post(post_params) do
+    result = Posts.create_post(post_params)
+    IO.inspect(result, label: "db result")
+
+    with {:ok, %Post{} = post} <- result do
       conn
       |> put_status(:created)
       |> put_resp_header("location", ~p"/api/posts/#{post}")
@@ -28,9 +31,35 @@ defmodule ForumWeb.PostController do
   def update(conn, %{"id" => id, "post" => post_params}) do
     post = Posts.get_post!(id)
 
-    with {:ok, %Post{} = post} <- Posts.update_post(post, post_params) do
-      render(conn, :show, post: post)
+    case conn.method do
+      "PUT" ->
+        case Posts.replace_post(post, post_params) do
+          {:ok, post} ->
+            render(conn, :show, post: post)
+
+          {:error, changeset} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> put_view(json: ForumWeb.ChangesetJSON)
+            |> render(:error, changeset: changeset)
+        end
+
+      "PATCH" ->
+        case Posts.update_post(post, post_params) do
+          {:ok, post} ->
+            render(conn, :show, post: post)
+
+          {:error, changeset} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> put_view(json: ForumWeb.ChangesetJSON)
+            |> render(:error, changeset: changeset)
+        end
     end
+
+    # with {:ok, %Post{} = post} <- Posts.update_post(post, post_params) do
+    #   render(conn, :show, post: post)
+    # end
   end
 
   def delete(conn, %{"id" => id}) do
