@@ -4,6 +4,7 @@ defmodule Forum.Account do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Repo
   alias Forum.Repo
 
   alias Forum.Account.User
@@ -35,7 +36,7 @@ defmodule Forum.Account do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user!(id), do: Repo.get!(User, id) |> Repo.preload(:posts)
 
   @doc """
   Creates a user.

@@ -1,5 +1,7 @@
 defmodule ForumWeb.UserJSON do
+  alias Hex.API.User
   alias Forum.Account.User
+  alias Forum.Posts.Post
 
   @doc """
   Renders a list of users.
@@ -19,7 +21,25 @@ defmodule ForumWeb.UserJSON do
     %{
       id: user.id,
       name: user.name,
-      email: user.email
+      email: user.email,
+      posts:
+        Enum.map(user.posts, fn post ->
+          %{
+            id: post.id,
+            title: post.title,
+            body: post.body
+          }
+        end)
+      # posts: Enum.map(user.posts, &post_data/1)
+      # posts: for(post <- user.posts, do: post_data(post))
     }
   end
+
+  # defp post_data(%Post{} = post) do
+  #   %{
+  #     id: post.id,
+  #     title: post.title,
+  #     body: post.body
+  #   }
+  # end
 end
